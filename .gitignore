@@ -21,3 +21,5 @@ mysql_data/
 
 .superpowers/sdd/*.md
 !/.superpowers/sdd/.gitkeep
+# local sqlite files (auto-created by config defaults)
+*.db
