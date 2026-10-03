@@ -1,6 +1,10 @@
+import json
 import re
 
+from jsonpath_ng.ext import parse as jp_parse  # type: ignore
+
 _PARAM_RE = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+_EQ_RE = re.compile(r"^(.+?)\s*==\s*(.+?)\s*$")
 
 
 def match_path(template: str, actual: str) -> dict[str, str] | None:
@@ -16,3 +20,60 @@ def match_path(template: str, actual: str) -> dict[str, str] | None:
         elif t != a:
             return None
     return params
+
+
+def match_request(
+    spec: dict | None,
+    *,
+    query: dict[str, str],
+    headers: dict[str, str],
+    body_text: str,
+) -> bool:
+    if not spec:
+        return True
+    if q := spec.get("query"):
+        for k, v in q.items():
+            if query.get(k) != v:
+                return False
+    if h := spec.get("headers"):
+        lower = {k.lower(): v for k, v in headers.items()}
+        for k, v in h.items():
+            if lower.get(k.lower()) != v:
+                return False
+    if "body_contains" in spec:
+        if not body_text or spec["body_contains"] not in body_text:
+            return False
+    if "body_jsonpath" in spec:
+        try:
+            data = json.loads(body_text) if body_text else None
+        except json.JSONDecodeError:
+            return False
+        if data is None:
+            return False
+        expr_str = spec["body_jsonpath"]
+        eq = _EQ_RE.match(expr_str)
+        if eq:
+            lhs_str, rhs_str = eq.group(1).strip(), eq.group(2).strip()
+            if (
+                len(rhs_str) >= 2
+                and rhs_str[0] == rhs_str[-1]
+                and rhs_str[0] in ("'", '"')
+            ):
+                rhs_val: object = rhs_str[1:-1]
+            else:
+                try:
+                    rhs_val = json.loads(rhs_str)
+                except json.JSONDecodeError:
+                    rhs_val = rhs_str
+            lhs_expr = jp_parse(lhs_str)
+            lhs_matches = lhs_expr.find(data)
+            if not lhs_matches:
+                return False
+            if lhs_matches[0].value != rhs_val:
+                return False
+        else:
+            expr = jp_parse(expr_str)
+            matches = expr.find(data)
+            if not matches or not isinstance(matches[0].value, bool) or not matches[0].value:
+                return False
+    return True
