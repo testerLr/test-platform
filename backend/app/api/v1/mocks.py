@@ -120,8 +120,23 @@ async def test_mock(
     if not mock:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     await _ensure_role(session, mock.project_id, user.id, ProjectRole.OWNER, ProjectRole.DEVELOPER, ProjectRole.VIEWER)
+
+    from app.mock_engine.renderer import render
+
+    rendered_headers = {
+        k: render(v, path_params={}, query=body.query, headers=body.headers, body_text=body.body or "")
+        for k, v in (mock.response_headers or {}).items()
+    }
+    rendered_body = render(
+        mock.response_body,
+        path_params={},
+        query=body.query,
+        headers=body.headers,
+        body_text=body.body or "",
+    )
+    content_type = rendered_headers.pop("Content-Type", "application/json")
     return MockTestResponse(
         status=mock.response_status,
-        headers=mock.response_headers or {},
-        body=mock.response_body,
+        headers={**rendered_headers, "Content-Type": content_type},
+        body=rendered_body,
     )

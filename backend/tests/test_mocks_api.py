@@ -52,3 +52,20 @@ async def test_patch_toggles_enabled(client, session):
     r = await client.patch(f"/api/v1/mocks/{mid}", json={"enabled": False}, headers={"Authorization": f"Bearer {ot}"})
     assert r.status_code == 200
     assert all(m.id != mid for m in get_engine().all())
+
+
+async def test_test_endpoint_renders_template(client, session):
+    p, _, _, ot, _ = await _setup(client, session)
+    mid = (await client.post(
+        "/api/v1/mocks",
+        json={"project_id": p.id, "name": "m", "method": "POST", "path": "/x",
+              "response_body": '{"hi":"{{ request.body.name }}"}'},
+        headers={"Authorization": f"Bearer {ot}"},
+    )).json()["id"]
+    r = await client.post(
+        f"/api/v1/mocks/{mid}/test",
+        json={"method": "POST", "path": "/x", "body": '{"name":"bob"}'},
+        headers={"Authorization": f"Bearer {ot}"},
+    )
+    assert r.status_code == 200
+    assert '"hi":"bob"' in r.json()["body"]
