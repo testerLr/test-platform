@@ -14,3 +14,11 @@ from app.schemas.project import (  # noqa: F401
     ProjectUpdate,
 )
 from app.schemas.user import PasswordReset, UserCreate, UserOut, UserUpdate  # noqa: F401
+from app.schemas.mock_api import (  # noqa: F401
+    MockCreate,
+    MockOut,
+    MockRequestMatch,
+    MockTestRequest,
+    MockTestResponse,
+    MockUpdate,
+)
