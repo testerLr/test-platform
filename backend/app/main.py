@@ -11,6 +11,7 @@ from app.api.v1 import projects as projects_v1
 from app.api.v1 import users as users_v1
 from app.db.session import engine
 from app.mock_engine import get_engine
+from app.mock_engine import routes as mock_routes
 from app.models.mock_api import MockAPI
 
 
@@ -28,6 +29,7 @@ app.include_router(auth_v1.router, prefix="/api/v1")
 app.include_router(users_v1.router, prefix="/api/v1")
 app.include_router(projects_v1.router, prefix="/api/v1")
 app.include_router(mocks_v1.router, prefix="/api/v1")
+app.include_router(mock_routes.router)
 
 
 @app.get("/health")
