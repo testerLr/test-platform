@@ -25,7 +25,7 @@ class MockCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validate_path(self) -> "MockCreate":
-        if "{" in self.path and not all(c.isalnum() or c in "{}_-" for c in self.path):
+        if "{" in self.path and not all(c.isalnum() or c in "{}_-/" for c in self.path):
             raise ValueError("invalid path template")
         return self
 
