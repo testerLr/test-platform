@@ -28,6 +28,6 @@ async def change_password(
     session: SessionDep, user: CurrentUser, body: ChangePasswordRequest
 ) -> None:
     if not verify_password(body.old_password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="wrong old password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="wrong old password")
     user.password_hash = hash_password(body.new_password)
     await session.commit()

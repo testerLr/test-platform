@@ -3,6 +3,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.models.mock_api import HttpMethod
 
 
+def _validate_path_template(path: str) -> str:
+    if "{" in path and not all(c.isalnum() or c in "{}_-/" for c in path):
+        raise ValueError("invalid path template")
+    return path
+
+
 class MockRequestMatch(BaseModel):
     query: dict[str, str] | None = None
     headers: dict[str, str] | None = None
@@ -25,8 +31,7 @@ class MockCreate(BaseModel):
 
     @model_validator(mode="after")
     def _validate_path(self) -> "MockCreate":
-        if "{" in self.path and not all(c.isalnum() or c in "{}_-/" for c in self.path):
-            raise ValueError("invalid path template")
+        _validate_path_template(self.path)
         return self
 
 
@@ -41,6 +46,12 @@ class MockUpdate(BaseModel):
     response_body: str | None = None
     delay_ms: int | None = Field(default=None, ge=0, le=60000)
     description: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_path(self) -> "MockUpdate":
+        if self.path is not None:
+            _validate_path_template(self.path)
+        return self
 
 
 class MockOut(BaseModel):

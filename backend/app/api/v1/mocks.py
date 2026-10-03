@@ -22,7 +22,7 @@ async def _ensure_role(session, project_id: int, user_id: int, *roles: ProjectRo
             ProjectMember.project_id == project_id, ProjectMember.user_id == user_id
         )
     )
-    if not m or (roles and m.role not in roles):
+    if not m or m.role not in roles:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="permission denied")
     return m
 

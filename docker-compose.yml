@@ -3,12 +3,12 @@ services:
     image: mysql:8
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpw}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-me}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-test_platform}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpw}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-change-me}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -19,7 +19,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-rootpw}@mysql:3306/${MYSQL_DATABASE:-test_platform}
+      DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-change-me}@mysql:3306/${MYSQL_DATABASE:-test_platform}
     entrypoint: ["bash", "-lc"]
     command:
       - "alembic upgrade head && python -m app.scripts.seed_admin"
@@ -33,7 +33,7 @@ services:
       backend-init:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-rootpw}@mysql:3306/${MYSQL_DATABASE:-test_platform}
+      DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-change-me}@mysql:3306/${MYSQL_DATABASE:-test_platform}
       JWT_SECRET: ${JWT_SECRET:-dev-secret}
       JWT_ALGORITHM: HS256
       JWT_EXPIRES_MINUTES: "1440"

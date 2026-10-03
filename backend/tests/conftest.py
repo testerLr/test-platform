@@ -7,6 +7,14 @@ import app.models  # noqa: F401,F403  -- registers ORM models on Base.metadata
 from app.db.base import Base
 from app.deps import get_session
 from app.main import app
+from app.mock_engine import get_engine
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def _reset_mock_engine():
+    get_engine()._routes.clear()
+    yield
+    get_engine()._routes.clear()
 
 
 @pytest_asyncio.fixture

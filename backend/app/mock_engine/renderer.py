@@ -3,9 +3,10 @@ import random
 import uuid
 from datetime import datetime, timezone
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import StrictUndefined
+from jinja2.sandbox import SandboxedEnvironment
 
-_ENV = Environment(
+_ENV = SandboxedEnvironment(
     autoescape=False,
     undefined=StrictUndefined,
 )
@@ -53,7 +54,7 @@ def render(
     request = {
         "path": _BodyProxy(path_params),
         "query": _BodyProxy(query),
-        "header": _BodyProxy(dict(headers)),
+        "header": _BodyProxy({k.lower(): v for k, v in headers.items()}),
         "body": _BodyProxy(body if isinstance(body, dict) else {}),
     }
 

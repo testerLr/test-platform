@@ -4,7 +4,6 @@ import re
 from jsonpath_ng.ext import parse as jp_parse  # type: ignore
 
 _PARAM_RE = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
-_EQ_RE = re.compile(r"^(.+?)\s*==\s*(.+?)\s*$")
 
 
 def match_path(template: str, actual: str) -> dict[str, str] | None:
@@ -51,29 +50,20 @@ def match_request(
         if data is None:
             return False
         expr_str = spec["body_jsonpath"]
-        eq = _EQ_RE.match(expr_str)
-        if eq:
-            lhs_str, rhs_str = eq.group(1).strip(), eq.group(2).strip()
-            if (
-                len(rhs_str) >= 2
-                and rhs_str[0] == rhs_str[-1]
-                and rhs_str[0] in ("'", '"')
-            ):
-                rhs_val: object = rhs_str[1:-1]
-            else:
-                try:
-                    rhs_val = json.loads(rhs_str)
-                except json.JSONDecodeError:
-                    rhs_val = rhs_str
-            lhs_expr = jp_parse(lhs_str)
-            lhs_matches = lhs_expr.find(data)
-            if not lhs_matches:
-                return False
-            if lhs_matches[0].value != rhs_val:
-                return False
-        else:
-            expr = jp_parse(expr_str)
-            matches = expr.find(data)
-            if not matches or not isinstance(matches[0].value, bool) or not matches[0].value:
-                return False
+        # jsonpath_ng requires a leading '$' before filter expressions.
+        is_filter = "[?(" in expr_str
+        if is_filter and not expr_str.lstrip().startswith("$"):
+            expr_str = "$" + expr_str
+        expr = jp_parse(expr_str)
+        matches = expr.find(data)
+        if not matches:
+            return False
+        val = matches[0].value
+        if isinstance(val, bool):
+            return val
+        # Filter expressions like [?(@.x == 'y')] return matched items (not bools);
+        # non-empty match is considered truthy. All other expressions must yield bool.
+        if is_filter:
+            return True
+        return False
     return True

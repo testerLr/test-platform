@@ -22,8 +22,14 @@ def test_body_contains_substring():
 
 
 def test_body_jsonpath_true():
-    spec = {"body_jsonpath": "$.action == 'login'"}
-    assert match_request(spec, query={}, headers={}, body_text='{"action": "login"}')
+    spec = {"body_jsonpath": "[?(@.action == 'login')]"}
+    assert match_request(spec, query={}, headers={}, body_text='[{"action": "login"}]')
+
+
+def test_body_jsonpath_non_bool_expression_rejected():
+    """Non-boolean JSONPath expressions (e.g. simple field access) must NOT match."""
+    spec = {"body_jsonpath": "$.action"}
+    assert not match_request(spec, query={}, headers={}, body_text='{"action": "login"}')
 
 
 def test_body_jsonpath_invalid_body_fails():
