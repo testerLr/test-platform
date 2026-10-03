@@ -13,11 +13,25 @@ services:
       timeout: 5s
       retries: 20
 
+  backend-init:
+    build: ./backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-rootpw}@mysql:3306/${MYSQL_DATABASE:-test_platform}
+    entrypoint: ["bash", "-lc"]
+    command:
+      - "alembic upgrade head && python -m app.scripts.seed_admin"
+    restart: "no"
+
   backend:
     build: ./backend
     depends_on:
       mysql:
         condition: service_healthy
+      backend-init:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-rootpw}@mysql:3306/${MYSQL_DATABASE:-test_platform}
       JWT_SECRET: ${JWT_SECRET:-dev-secret}
