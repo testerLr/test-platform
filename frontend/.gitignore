@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vite/
+*.local
+src/**/*.vue.js
+src/**/*.vue.js.map
+src/**/*.js
+src/**/*.js.map
+src/**/*.ts.map
+tsconfig.tsbuildinfo
