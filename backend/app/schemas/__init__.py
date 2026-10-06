@@ -22,3 +22,22 @@ from app.schemas.mock_api import (  # noqa: F401
     MockTestResponse,
     MockUpdate,
 )
+from app.schemas.pipeline import (  # noqa: F401
+    HttpConfig,
+    KafkaConfig,
+    MySQLConfig,
+    NodeConfig,
+    PipelineCreate,
+    PipelineOut,
+    PipelineUpdate,
+    RedisConfig,
+    ReorderRequest,
+    RunDetailOut,
+    RunOut,
+    RunStepOut,
+    StepCreate,
+    StepOut,
+    StepUpdate,
+    TestStepRequest,
+    pick_node_config,
+)
