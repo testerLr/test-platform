@@ -7,7 +7,7 @@ from fastapi import FastAPI
 import app.db.session as session_module
 from app.api.v1 import auth as auth_v1
 from app.api.v1 import mocks as mocks_v1
-from app.api.v1 import pipelines as pipelines_v1
+from app.api.v1 import pipelines as pipelines_module
 from app.api.v1 import projects as projects_v1
 from app.api.v1 import users as users_v1
 from app.db.session import engine
@@ -29,7 +29,8 @@ app = FastAPI(title="Test Platform", version="0.1.0", lifespan=lifespan)
 app.include_router(auth_v1.router, prefix="/api/v1")
 app.include_router(users_v1.router, prefix="/api/v1")
 app.include_router(projects_v1.router, prefix="/api/v1")
-app.include_router(pipelines_v1.router, prefix="/api/v1")
+app.include_router(pipelines_module.pipelines_v1_router, prefix="/api/v1")
+app.include_router(pipelines_module.runs_v1_router, prefix="/api/v1")
 app.include_router(mocks_v1.router, prefix="/api/v1")
 app.include_router(mock_routes.router)
 
