@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from sqlalchemy import select
@@ -11,17 +12,23 @@ from app.api.v1 import pipelines as pipelines_module
 from app.api.v1 import projects as projects_v1
 from app.api.v1 import users as users_v1
 from app.db.session import engine
+from app.logging_config import configure_logging
 from app.mock_engine import get_engine
 from app.mock_engine import routes as mock_routes
 from app.models.mock_api import MockAPI
 
+configure_logging()
+log = logging.getLogger("app")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    log.info("application starting up")
     async with session_module.AsyncSessionLocal() as s:
         rows = list((await s.scalars(select(MockAPI))).all())
     await get_engine().load_all(rows)
     yield
+    log.info("application shutting down")
     await engine.dispose()
 
 
