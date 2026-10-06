@@ -19,7 +19,8 @@ dist/
 
 mysql_data/
 
-.superpowers/sdd/*.md
-!/.superpowers/sdd/.gitkeep
+# superpowers working artifacts (task briefs, reports, ledgers) - kept local only
+.superpowers/
+
 # local sqlite files (auto-created by config defaults)
 *.db
