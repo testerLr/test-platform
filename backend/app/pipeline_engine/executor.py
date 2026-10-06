@@ -8,7 +8,7 @@ from app.models.pipeline import (
     Pipeline, PipelineRun, PipelineRunStep, PipelineStep, RunStatus, StepRunStatus,
 )
 from app.pipeline_engine.errors import NodeExecutionError
-from app.pipeline_engine.renderer import render_step_template
+from app.pipeline_engine.renderer import decrypt_credentials, render_step_template
 from app.schemas.pipeline import pick_node_config
 
 log = logging.getLogger("app.pipeline_engine")
@@ -78,6 +78,7 @@ class PipelineExecutor:
             try:
                 pick_node_config(step.type.value, step.config)
                 rendered = await self._render_config(step.config)
+                rendered = decrypt_credentials(rendered)
                 rs.input_rendered = rendered
                 output = await self._resolve_executor(step.type.value).run(rendered)
                 rs.output = output

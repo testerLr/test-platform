@@ -130,7 +130,16 @@ async def update_step(user: CurrentUser, session: SessionDep, pipeline_id: int, 
     if body.enabled is not None:
         step.enabled = body.enabled
     if body.config is not None:
-        step.config = _encrypt_passwords(body.config, step.type)
+        # Merge request body over existing config (preserves existing *_enc fields).
+        merged = json.loads(json.dumps(step.config))  # deep copy of current
+        def _overlay(dst, src):
+            for k, v in src.items():
+                if isinstance(v, dict) and isinstance(dst.get(k), dict):
+                    _overlay(dst[k], v)
+                else:
+                    dst[k] = v
+        _overlay(merged, body.config)
+        step.config = _encrypt_passwords(merged, step.type)
     await session.commit()
     await session.refresh(step)
     return step

@@ -6,6 +6,14 @@ from app.security.crypto import decrypt, encrypt
 
 
 @pytest.fixture(autouse=True)
+def _reset_fernet_cache():
+    import app.security.crypto as mod
+    mod._fernet_instance = None
+    yield
+    mod._fernet_instance = None
+
+
+@pytest.fixture(autouse=True)
 def _set_fernet_key(monkeypatch):
     monkeypatch.setattr(config_module.settings, "encryption_key", Fernet.generate_key().decode())
 

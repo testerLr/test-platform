@@ -1,3 +1,6 @@
+import pytest
+
+from app.pipeline_engine.errors import NodeExecutionError
 from app.pipeline_engine.renderer import render_step_template
 
 
@@ -26,5 +29,5 @@ def test_now_uuid_randin():
 
 
 def test_ssti_blocked():
-    out = render_step_template("{{ ''.__class__.__mro__ }}", {"steps": []})
-    assert "<class" not in out
+    with pytest.raises(NodeExecutionError):
+        render_step_template("{{ ''.__class__.__mro__ }}", {"steps": []})

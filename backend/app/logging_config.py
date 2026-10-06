@@ -1,9 +1,13 @@
 import logging.config
 from pathlib import Path
 
+from app.config import settings
+
 LOGS_DIR = Path(__file__).resolve().parents[2] / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOGS_DIR / "app.log"
+
+_LOG_LEVEL = settings.log_level.upper()
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -25,12 +29,12 @@ LOGGING_CONFIG = {
             "encoding": "utf-8",
         },
     },
-    "root": {"level": "INFO", "handlers": ["stdout", "file"]},
+    "root": {"level": _LOG_LEVEL, "handlers": ["stdout", "file"]},
     "loggers": {
-        "uvicorn": {"level": "INFO", "handlers": ["stdout", "file"], "propagate": False},
-        "uvicorn.error": {"level": "INFO", "handlers": ["stdout", "file"], "propagate": False},
-        "uvicorn.access": {"level": "INFO", "handlers": ["stdout", "file"], "propagate": False},
-        "app": {"level": "INFO", "handlers": ["stdout", "file"], "propagate": False},
+        "uvicorn": {"level": _LOG_LEVEL, "handlers": ["stdout", "file"], "propagate": False},
+        "uvicorn.error": {"level": _LOG_LEVEL, "handlers": ["stdout", "file"], "propagate": False},
+        "uvicorn.access": {"level": _LOG_LEVEL, "handlers": ["stdout", "file"], "propagate": False},
+        "app": {"level": _LOG_LEVEL, "handlers": ["stdout", "file"], "propagate": False},
     },
 }
 

@@ -1,6 +1,12 @@
+import os
+
 import pytest_asyncio
+from cryptography.fernet import Fernet
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+# Ensure ENCRYPTION_KEY is present BEFORE importing app.main (which validates it at import time).
+os.environ.setdefault("ENCRYPTION_KEY", Fernet.generate_key().decode())
 
 import app.db.session as session_module
 import app.models  # noqa: F401,F403  -- registers ORM models on Base.metadata

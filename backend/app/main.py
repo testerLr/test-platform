@@ -1,9 +1,11 @@
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from sqlalchemy import select
 
 from fastapi import FastAPI
+from cryptography.fernet import Fernet
 
 import app.db.session as session_module
 from app.api.v1 import auth as auth_v1
@@ -11,11 +13,21 @@ from app.api.v1 import mocks as mocks_v1
 from app.api.v1 import pipelines as pipelines_module
 from app.api.v1 import projects as projects_v1
 from app.api.v1 import users as users_v1
+from app.config import settings
 from app.db.session import engine
 from app.logging_config import configure_logging
 from app.mock_engine import get_engine
 from app.mock_engine import routes as mock_routes
 from app.models.mock_api import MockAPI
+
+if not settings.encryption_key:
+    print("FATAL: ENCRYPTION_KEY env var is required.", file=sys.stderr)
+    sys.exit(1)
+try:
+    Fernet(settings.encryption_key.encode())
+except Exception as e:
+    print(f"FATAL: ENCRYPTION_KEY is not a valid Fernet key: {e}", file=sys.stderr)
+    sys.exit(1)
 
 configure_logging()
 log = logging.getLogger("app")
