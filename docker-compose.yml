@@ -20,6 +20,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: mysql+asyncmy://root:${MYSQL_ROOT_PASSWORD:-change-me}@mysql:3306/${MYSQL_DATABASE:-test_platform}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-fernet-key-replace-in-prod}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     entrypoint: ["bash", "-lc"]
     command:
       - "alembic upgrade head && python -m app.scripts.seed_admin"
@@ -37,6 +39,10 @@ services:
       JWT_SECRET: ${JWT_SECRET:-dev-secret}
       JWT_ALGORITHM: HS256
       JWT_EXPIRES_MINUTES: "1440"
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-fernet-key-replace-in-prod}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./logs:/app/logs
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
 
   frontend:
