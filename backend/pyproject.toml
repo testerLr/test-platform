@@ -17,6 +17,7 @@ dependencies = [
     "jsonpath-ng>=1.6",
     "python-multipart>=0.0.9",
     "aiokafka>=0.10",
+    "redis>=5.0",
 ]
 
 [project.optional-dependencies]
