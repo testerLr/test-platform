@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-secret-change-me"
     jwt_algorithm: str = "HS256"
     jwt_expires_minutes: int = 1440
+    encryption_key: str = "gtePVRHa1izSwrWBMh4oNi1kDhETvdplxiWZy9NnfqE="
+    log_level: str = "INFO"
 
 
 settings = Settings()
