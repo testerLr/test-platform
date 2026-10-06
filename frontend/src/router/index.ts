@@ -19,6 +19,7 @@ const router = createRouter({
         { path: "pipelines/:id", component: () => import("@/views/PipelineView.vue") },
         { path: "pipelines/:id/steps/new", component: () => import("@/views/StepEditView.vue") },
         { path: "pipelines/:id/steps/:stepId", component: () => import("@/views/StepEditView.vue") },
+        { path: "runs/:id", component: () => import("@/views/RunView.vue") },
         { path: "users", component: () => import("@/views/UsersView.vue"), meta: { adminOnly: true } }
       ]
     }
