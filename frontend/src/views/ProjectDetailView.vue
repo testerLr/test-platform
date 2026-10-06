@@ -38,23 +38,43 @@
         </el-table-column>
       </el-table>
     </el-tab-pane>
+    <el-tab-pane label="数据流水线" name="pipelines">
+      <el-button type="primary" @click="$router.push(`/pipelines/new?project_id=${projectId}`)">新建流水线</el-button>
+      <el-table :data="pipelines" style="margin-top:16px">
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="name" label="名称" />
+        <el-table-column prop="description" label="描述" />
+        <el-table-column label="操作" width="240">
+          <template #default="{ row }">
+            <el-button link @click="$router.push(`/pipelines/${row.id}`)">查看</el-button>
+            <el-button link @click="runPipeline(row.id)">运行</el-button>
+            <el-popconfirm title="确认删除?" @confirm="removePipeline(row.id)">
+              <template #reference><el-button link type="danger">删除</el-button></template>
+            </el-popconfirm>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-tab-pane>
   </el-tabs>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { projectsApi, Member } from "@/api/projects";
 import { mocksApi, Mock } from "@/api/mocks";
+import { pipelinesApi, Pipeline } from "@/api/pipelines";
 import { http } from "@/api/http";
 
 const route = useRoute();
+const router = useRouter();
 const projectId = Number(route.params.id);
 const project = ref<{ id: number; name: string } | null>(null);
 const tab = ref("mocks");
 const mocks = ref<Mock[]>([]);
 const members = ref<Member[]>([]);
+const pipelines = ref<Pipeline[]>([]);
 const allUsers = ref<{ id: number; username: string }[]>([]);
 const newUserId = ref<number | null>(null);
 const newRole = ref<Member["role"]>("developer");
@@ -88,5 +108,20 @@ async function remove(id: number) {
   await refresh();
 }
 
-onMounted(async () => { await refresh(); await loadUsers(); });
+async function refreshPipelines() {
+  pipelines.value = await pipelinesApi.list(projectId);
+}
+async function runPipeline(id: number) {
+  const run = await pipelinesApi.run(id);
+  await refreshPipelines();
+  ElMessage.success(`运行完成 (${run.status})`);
+  router.push(`/runs/${run.id}`);
+}
+async function removePipeline(id: number) {
+  await pipelinesApi.remove(id);
+  await refreshPipelines();
+  ElMessage.success("已删除");
+}
+
+onMounted(async () => { await refresh(); await loadUsers(); await refreshPipelines(); });
 </script>
