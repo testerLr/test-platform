@@ -17,6 +17,8 @@ const router = createRouter({
         { path: "mocks/new", component: () => import("@/views/MockEditView.vue") },
         { path: "mocks/:id", component: () => import("@/views/MockEditView.vue") },
         { path: "pipelines/:id", component: () => import("@/views/PipelineView.vue") },
+        { path: "pipelines/:id/steps/new", component: () => import("@/views/StepEditView.vue") },
+        { path: "pipelines/:id/steps/:stepId", component: () => import("@/views/StepEditView.vue") },
         { path: "users", component: () => import("@/views/UsersView.vue"), meta: { adminOnly: true } }
       ]
     }
